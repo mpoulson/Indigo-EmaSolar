@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<Devices>
+    <Device type="custom" id="emainverter">
+        <Name>EMA Inverter</Name>
+        <UiDisplayStateId>PowerCurrent</UiDisplayStateId>
+        <ConfigUI>
+            <Field id="address" type="textfield"  hidden="true" >
+                <Label/>
+            </Field>
+            <Field id="device" type="menu">
+                <Label>Device:</Label>
+                <List class="self" filter="" method="deviceList1"/>
+                <CallbackMethod>deviceSelectionChanged</CallbackMethod>
+            </Field>
+            <Field type="textfield" id="emaId" readonly="true">
+                <Label>Device ID:</Label>
+            </Field>
+        </ConfigUI>
+        <States>
+            <State id="PowerCurrent">
+                <ValueType>String</ValueType>
+                <TriggerLabel>PowerCurrent</TriggerLabel>
+                <ControlPageLabel>PowerCurrent</ControlPageLabel>
+            </State>
+            <State id="EnergyDay">
+                <ValueType>String</ValueType>
+                <TriggerLabel>EnergyDay</TriggerLabel>
+                <ControlPageLabel>EnergyDay</ControlPageLabel>
+            </State>
+            <State id="EnergyMonth">
+                <ValueType>String</ValueType>
+                <TriggerLabel>EnergyMonth</TriggerLabel>
+                <ControlPageLabel>EnergyMonth</ControlPageLabel>
+            </State>
+            <State id="EnergyYear">
+                <ValueType>String</ValueType>
+                <TriggerLabel>EnergyYear</TriggerLabel>
+                <ControlPageLabel>EnergyYear</ControlPageLabel>
+            </State>
+        </States>
+    </Device>
+</Devices>
