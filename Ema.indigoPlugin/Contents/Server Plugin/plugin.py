@@ -30,7 +30,7 @@ class Plugin(indigo.PluginBase):
 		self.Password = None
 		self.loginFailed = False
 
-	def _refreshStatesFromHardware(self, dev, logRefresh, commJustStarted):
+	def _refreshStatesFromHardware(self, dev):
 
 		emaId = dev.pluginProps["emaId"]
 		self.debugLog(u"Getting data for device: %s" % emaId)
@@ -63,8 +63,10 @@ class Plugin(indigo.PluginBase):
 		self.updater = GitHubPluginUpdater(self)
 		self.updater.checkForUpdate()
 		self.updateFrequency = float(self.pluginPrefs.get('updateFrequency', 24)) * 60.0 * 60.0
+		self.refreshinterval = float(self.pluginPrefs.get('refreshinterval', 1)) * 60.0 * 60.0
 		self.debugLog(u"updateFrequency = " + str(self.updateFrequency))
 		self.next_update_check = time.time()
+		Ema.logTrace(self.Ema, "Startup", {'updateFrequency' : self.updateFrequency, 'refreshInterval': self.refreshinterval})
 		self.login(False)
 
 	def login(self, force):
@@ -93,10 +95,10 @@ class Plugin(indigo.PluginBase):
 						if not dev.enabled:
 							continue
 
-						self._refreshStatesFromHardware(dev, False, False)
+						self._refreshStatesFromHardware(dev)
 
-				self.debugLog("Sleep interval: %s" % self.updateFrequency)
-				self.sleep(self.updateFrequency)
+				self.debugLog("Sleep interval: %s" % self.refreshinterval)
+				self.sleep(self.refreshinterval)
 		except self.StopThread:
 			pass	# Optionally catch the StopThread exception and do any needed cleanup.
 
@@ -123,7 +125,6 @@ class Plugin(indigo.PluginBase):
 		self.initDevice(dev)
 
 		dev.stateListOrDisplayStateIdChanged()
-		#self._refreshStatesFromHardware(dev, True, True)
 
 	def deviceStopComm(self, dev):
 		# Called when communication with the hardware should be shutdown.
@@ -170,6 +171,7 @@ class Plugin(indigo.PluginBase):
 
 	def showAvailableDevices(self):
 		indigo.server.log("Number of devices found: %i" % (len(self.deviceList)))
+		Ema.logTrace(self.Ema, "showAvailableDevices", {'Number of devices' : (len(self.deviceList))})
 		for (id, details) in self.deviceList.iteritems():
 			indigo.server.log("\tSN:%s" % (details[0]))
 
@@ -179,7 +181,7 @@ class Plugin(indigo.PluginBase):
 		deviceListCopy = deepcopy(self.deviceList)
 		for existingDevice in indigo.devices.iter("self"):
 			for id in self.deviceList:
-		 		self.debugLog("    comparing %s against deviceList item %s" % (existingDevice.pluginProps["emaId"],id))
+		 		self.debugLog("\tcomparing %s against deviceList item %s" % (existingDevice.pluginProps["emaId"],id))
 				if existingDevice.pluginProps["emaId"] == id:
 					self.debugLog("    removing item %s" % (id))
 					del deviceListCopy[id]
